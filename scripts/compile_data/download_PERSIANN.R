@@ -15,8 +15,8 @@ library(scales)
 
 #coordinate for main map
 xmin=-72
-xmax=-70
-ymin=41
+xmax=-70.5
+ymin=41.2
 ymax=42.5
 
 sf_use_s2(FALSE)
@@ -24,6 +24,7 @@ sf_use_s2(FALSE)
 # load data ---------------------------------------------------------------
 
 load("Rdata/GIS/census_RI.Rdata")
+load("Rdata/GIS/watershed.Rdata")
 
 r <- raster(xmn=0, xmx=360, ymn=-60, ymx=60, nrow=3000, ncol=9000, crs="+proj=longlat +datum=WGS84")
 values(r) <- 1
@@ -59,7 +60,7 @@ rc.df <- rc.df %>%
 
 # looks ok
 ggplot()+
-  theme_classic()+
+  theme_bw()+
   geom_tile(data=rc.df, aes(x=x, y=y, fill=rainfall_mm))+
   geom_sf(data=RI.sf, fill=NA)+
   scale_fill_distiller(palette="RdYlBu")+

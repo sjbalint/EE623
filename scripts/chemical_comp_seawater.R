@@ -23,7 +23,7 @@ df <- df %>%
 ggplot(df,aes(species, mmol.kg))+
   theme_classic()+
   geom_col(color="black",fill="grey")+
-  scale_y_break(breaks=c(0.25,0.5,3,5,75,400), scales="free", expand=FALSE)+
+  scale_y_break(breaks=c(0.3,0.5,2,3,75,400), scales="free", expand=FALSE)+
   labs(y="mmol/kg",x="Species")+
   theme(axis.text.x = element_text(angle=90,hjust=1, vjust=0.5))
 

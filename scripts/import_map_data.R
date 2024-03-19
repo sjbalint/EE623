@@ -65,6 +65,5 @@ save(NE_topo.df,file="Rdata/newengland_topobathy.Rdata")
 
 # load shapefile boundaries -----------------------------------------------
 
-watershed.sf <- read_sf("Rdata/GIS/nb_watershed/BASINS_NBEP2017.shp")
+watershed <- read_sf("Rdata/GIS/nb_watershed/", layer = "SHAPEFILE")
 
-save(watershed.sf, file="Rdata/GIS/watershed.Rdata")

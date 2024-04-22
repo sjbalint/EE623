@@ -22,8 +22,9 @@ save(RI.sf, file="Rdata/GIS/census_RI.Rdata")
 
 RI_roads.sf <- primary_secondary_roads(state=c("RI"))
 MA_roads.sf <- primary_secondary_roads(state=c("MA"))
+CT_roads.sf <- primary_secondary_roads(state=c("CT"))
 
-RI_roads.sf <- rbind_tigris(RI_roads.sf, MA_roads.sf)
+RI_roads.sf <- rbind_tigris(RI_roads.sf, MA_roads.sf, CT_roads.sf)
 
 save(RI_roads.sf, file="Rdata/GIS/RI_roads.Rdata")
 
@@ -41,14 +42,14 @@ save(major_roads.sf, file="Rdata/GIS/major_roads.Rdata")
 xmin=-72
 xmax=-70
 ymin=41
-ymax=42
+ymax=42.5
 
 bathy <- getNOAA.bathy(lon1 = xmin, lon2 = xmax, lat1 = ymin, lat2 = ymax, resolution = 0.01)
 
 # convert bathymetry to data frame
 topobathy.df = fortify.bathy(bathy)
 
-save(topobathy.df,file="Rdata/narragansett_topobathy.Rdata")
+save(topobathy.df,file="Rdata/GIS/narragansett_topobathy.Rdata")
 
 #set coordinates
 xmin=-76
@@ -61,9 +62,15 @@ NE_topo <- getNOAA.bathy(lon1 = xmin, lon2 = xmax, lat1 = ymin, lat2 = ymax, res
 # convert bathymetry to data frame
 NE_topo.df = fortify.bathy(NE_topo)
 
-save(NE_topo.df,file="Rdata/newengland_topobathy.Rdata")
+save(NE_topo.df,file="Rdata/GIS/newengland_topobathy.Rdata")
 
 # load shapefile boundaries -----------------------------------------------
 
+<<<<<<< HEAD
 watershed <- read_sf("Rdata/GIS/nb_watershed/")
+=======
+watershed.sf <- read_sf("raw/nb_watershed/")
+
+save(watershed.sf,file="Rdata/GIS/watershed.Rdata")
+>>>>>>> 91a0e3269bb358e840af6d13767437173cb274d0
 

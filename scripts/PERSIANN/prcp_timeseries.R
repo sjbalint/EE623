@@ -12,10 +12,11 @@ days_roll <- 365
 
 # load data ---------------------------------------------------------------
 
-persiann.df <- readRDS("Rdata/daily.rds") %>%
+persiann.df <- readRDS("Rdata/basin.rds") %>%
+  group_by(Basins) %>%
   mutate(prcp.mm=perform_IQR(prcp.mm),
          PERSIANN=prcp.mm/10)%>%
-  select(date, PERSIANN)
+  select(date, Basins, PERSIANN)
 
 noaa.df <- readRDS("Rdata/NOAA_prcp.rds") %>%
   mutate(NOAA=prcp.mm/10) %>%
@@ -23,7 +24,7 @@ noaa.df <- readRDS("Rdata/NOAA_prcp.rds") %>%
 
 df <- left_join(persiann.df,noaa.df) %>%
   pivot_longer(c("PERSIANN", "NOAA"), names_to="data", values_to="prcp.cm") %>%
-  group_by(data) %>%
+  group_by(data, Basins) %>%
   mutate(prcp.cm=rollsum(prcp.cm, k=days_roll, na.pad = TRUE, align="right", na.rm=TRUE),
          season=get_season(date)) %>%
   ungroup()
@@ -38,7 +39,8 @@ mytheme <- list(
   theme_classic(),
   labs(subtitle=paste0(days_roll,"-day rolling average")),
   scale_color_viridis_d(option="mako", end=0.7),
-  theme(legend.position="top")
+  theme(legend.position="top",
+        legend.title = element_blank())
 )
 
 # make a graph ------------------------------------------------------------
@@ -46,7 +48,7 @@ mytheme <- list(
 plot.df <- df %>%
   pivot_wider(names_from="data", values_from="prcp.cm")
 
-ggplot(plot.df, aes(NOAA, PERSIANN))+
+ggplot(plot.df, aes(NOAA, PERSIANN, color=Basins))+
   mytheme+
   geom_point(shape=21)+
   geom_smooth(method="lm", color="red")+
@@ -60,7 +62,7 @@ ggsave("figures/method_regression.png", width=mywidth, height=myheight)
 
 plot.df <- df 
 
-ggplot(plot.df, aes(date, prcp.cm, color=data))+
+ggplot(plot.df, aes(date, prcp.cm, color=Basins, linetype=data))+
   mytheme+
   geom_line(alpha=0.7)+
   #facet_wrap(.~season)+
@@ -74,7 +76,7 @@ plot.df <- noaa.df %>%
          year=format(date, "%Y"),
          data="NOAA")
 
-ggplot(plot.df, aes(date, prcp.cm, color=data))+
+ggplot(plot.df, aes(date, prcp.cm))+
   mytheme+
   geom_line(alpha=0.7)+
   geom_smooth(data=subset(plot.df, year>1950), method="lm", color="red")+

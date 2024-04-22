@@ -2,10 +2,9 @@ rm(list = ls()) #clear environment
 
 # load packages -----------------------------------------------------------
 
-library(data.table) #for large datasets
 library(progress)
 library(sf)
-library(raster)
+library(data.table) #for large datasets
 library(tidyverse)
 
 sf_use_s2(FALSE)
@@ -50,11 +49,11 @@ saveRDS(daily.df, file="Rdata/daily_nc.rds")
 
 daily.df <- readRDS("Rdata/daily_nc.rds")
 
-watershed.sf <- read_sf("Rdata/GIS/nb_watershed/")
+load("Rdata/GIS/watershed.Rdata")
 
-crs <- st_crs(watershed.sf)
+nc.sf <- st_as_sf(daily.df, coords = c("lon", "lat"), crs = 4326)
 
-nc.sf <- st_as_sf(daily.df, coords = c("lon", "lat"), crs = crs)
+watershed.sf <- st_transform(watershed.sf, crs = 4326)
 
 watershed.list <- watershed.sf %>%
   pull(Basins) %>%
@@ -72,6 +71,8 @@ for (watershed in watershed.list){
     mutate(Basins=watershed)
   
   nc.df <- st_drop_geometry(nc_crop.sf)
+  
+  saveRDS(nc.df,file=paste0("Rdata/cropped_netCDF",watershed,".rds"))
   
   result.list <- append(result.list, list(nc.df))
   

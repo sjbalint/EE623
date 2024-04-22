@@ -2,11 +2,11 @@ rm(list = ls()) #clear environment
 
 # load packages -----------------------------------------------------------
 
-library(tidyverse)
 library(data.table) #for large datasets
 library(progress)
 library(sf)
 library(raster)
+library(tidyverse)
 
 sf_use_s2(FALSE)
 
@@ -79,8 +79,21 @@ for (watershed in watershed.list){
 
 basins.df <- bind_rows(result.list)
 
-saveRDS(daily.df, file="Rdata/basin_nc.rds")
+watershed.df <- st_drop_geometry(watershed.sf) %>%
+  dplyr::select(Basins, Sq_Km)
 
+basins.df <- left_join(basins.df, watershed.df)
+
+saveRDS(basins.df, file="Rdata/basin_nc.rds")
+
+# summarize by basin ------------------------------------------------------
+
+basins.df <- basins.df %>%
+  group_by(date, Basins, Sq_Km) %>%
+  summarize(prcp.mm=mean(prcp.mm, na.rm=TRUE)) %>%
+  ungroup()
+
+saveRDS(basins.df, file="Rdata/basin.rds")
 
 # summarize by entire area ------------------------------------------------
 
@@ -101,6 +114,3 @@ yearly.df <- daily.df %>%
   ungroup()
 
 saveRDS(yearly.df, file="Rdata/yearly.rds")
-
-  
-  

@@ -5,6 +5,10 @@ rm(list = ls()) #clear environment
 library(tidyverse)
 library(data.table) #for large datasets
 library(progress)
+library(sf)
+library(raster)
+
+sf_use_s2(FALSE)
 
 # import all the netCDFs --------------------------------------------------
 
@@ -40,6 +44,42 @@ pb$terminate()
 daily.df <- bind_rows(result.list)
 
 saveRDS(daily.df, file="Rdata/daily_nc.rds")
+
+
+# summarize by basin ------------------------------------------------------
+
+daily.df <- readRDS("Rdata/daily_nc.rds")
+
+watershed.sf <- read_sf("Rdata/GIS/nb_watershed/")
+
+crs <- st_crs(watershed.sf)
+
+nc.sf <- st_as_sf(daily.df, coords = c("lon", "lat"), crs = crs)
+
+watershed.list <- watershed.sf %>%
+  pull(Basins) %>%
+  unique()
+
+result.list <- list()
+
+for (watershed in watershed.list){
+  print(watershed)
+  
+  basin.sf <- watershed.sf %>%
+    filter(Basins==watershed)
+  
+  nc_crop.sf <- st_intersection(nc.sf, basin.sf) %>%
+    mutate(Basins=watershed)
+  
+  nc.df <- st_drop_geometry(nc_crop.sf)
+  
+  result.list <- append(result.list, list(nc.df))
+  
+}
+
+basins.df <- bind_rows(result.list)
+
+saveRDS(daily.df, file="Rdata/basin_nc.rds")
 
 
 # summarize by entire area ------------------------------------------------
